@@ -1,0 +1,9 @@
+{
+    "$schema": "https://unpkg.com/wrangler@latest/config-schema.json",
+    "name": "shabbat-alert-web",
+    "compatibility_date": "2025-01-01",
+    "pages_build_output_dir": ".svelte-kit/cloudflare",
+    "vars": {
+        "VITE_WORKER_WS_URL": "wss://shabbat-alert-worker.<your-subdomain>.workers.dev/ws"
+    }
+}

@@ -1,0 +1,22 @@
+{
+    "$schema": "https://unpkg.com/wrangler@latest/config-schema.json",
+    "name": "shabbat-alert-worker",
+    "main": "src/index.ts",
+    "compatibility_date": "2025-01-01",
+    "compatibility_flags": ["nodejs_compat"],
+    "durable_objects": {
+        "bindings": [
+            {
+                "name": "ALERT_RELAY",
+                "class_name": "AlertRelay"
+            }
+        ]
+    },
+    "migrations": [
+        {
+            "tag": "v1",
+            "new_classes": ["AlertRelay"]
+        }
+    ]
+    // REDALERT_API_KEY: set via: wrangler secret put REDALERT_API_KEY
+}

@@ -1,0 +1,17 @@
+@key = {{$dotenv REDALERT_API_KEY}}
+
+@jerusalemInHe = '%D7%99%D7%A8%D7%95%D7%A9%D7%9C%D7%99%D7%9D%20-%20%D7%A6%D7%A4%D7%95%D7%9F'
+@jrId = 527
+###
+GET https://redalert.orielhaim.com/api/stats/cities?include=translations,coords
+Authorization: Bearer {{key}}
+
+###
+# cityId, search, limit
+GET https://redalert.orielhaim.com/api/stats/history
+  ?cityId=527
+Authorization: Bearer {{key}}
+
+###
+
+GET https://www.oref.org.il/districts/cities_heb.json
