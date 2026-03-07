@@ -1,29 +1,42 @@
 <script lang="ts">
-	import { onDestroy, onMount } from 'svelte';
-	import { toJewishDate, formatJewishDateInHebrew } from 'jewish-date';
+  import { onDestroy, onMount } from "svelte";
+  import { toJewishDate, formatJewishDateInHebrew } from "jewish-date";
 
-	let time = $state('');
-	let date = $state('');
-	let hebrewDate = $state('');
-	let interval: ReturnType<typeof setInterval>;
+  let time = $state("");
+  let date = $state("");
+  let hebrewDate = $state("");
+  let interval: ReturnType<typeof setInterval>;
 
-	function update() {
-		const now = new Date();
-		time = now.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-		date = now.toLocaleDateString('he-IL', { weekday: 'long', day: 'numeric', month: 'long' });
-		hebrewDate = formatJewishDateInHebrew(toJewishDate(now));
-	}
+  function update() {
+    const now = new Date();
+    time = now.toLocaleTimeString("he-IL", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
 
-	onMount(() => {
-		update();
-		interval = setInterval(update, 1000);
-	});
+    const weekday = now.toLocaleDateString("he-IL", { weekday: "long" });
+    const dayMonth = now.toLocaleDateString("he-IL", {
+      day: "numeric",
+      month: "long",
+    });
 
-	onDestroy(() => clearInterval(interval));
+    date = dayMonth;
+    hebrewDate = `${weekday}, ${formatJewishDateInHebrew(toJewishDate(now))}`;
+  }
+
+  onMount(() => {
+    update();
+    interval = setInterval(update, 1000);
+  });
+
+  onDestroy(() => clearInterval(interval));
 </script>
 
-<div class="clock text-right leading-tight">
-	<div class="font-mono text-[clamp(1.25rem,3vw,2.5rem)] font-bold tabular-nums">{time}</div>
-	<div class="text-[clamp(0.7rem,1.5vw,1.1rem)] opacity-70">{date}</div>
-	<div class="text-[clamp(0.65rem,1.3vw,0.95rem)] opacity-50">{hebrewDate}</div>
+<div class="flex items-center gap-3">
+  <span class="opacity-80 font-medium">{hebrewDate}</span>
+  <span class="opacity-40">|</span>
+  <span class="opacity-80">{date}</span>
+  <span class="opacity-40">|</span>
+  <span class="font-mono font-bold tabular-nums opacity-90">{time}</span>
 </div>

@@ -1,1 +1,53 @@
-@import 'tailwindcss';
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-amber-glow-bg-dark: #1e1124;
+  /* Deep Aubergine */
+  --color-amber-glow-bg-light: #fffcf8;
+  /* Warm Pastel */
+  --color-amber-glow-primary-dark: #eab308;
+  /* Amber / Yellow */
+  --color-amber-glow-primary-light: #ea580c;
+  /* Terracotta */
+  --color-amber-glow-alert-dark: #9f1239;
+  /* Deep Rose / Bordeaux */
+  --color-amber-glow-alert-light: #dc2626;
+  /* Vibrant Red */
+  --color-amber-glow-glass-dark: rgba(30, 17, 36, 0.6);
+  --color-amber-glow-glass-light: rgba(255, 252, 248, 0.7);
+
+  --animate-radar-pulse: radar-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  @keyframes radar-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.6;
+    }
+  }
+}
+
+@layer base {
+  body {
+    @apply dark:bg-amber-glow-bg-dark bg-amber-glow-bg-light dark:text-stone-300 text-stone-800 transition-colors duration-500 min-h-screen;
+    font-family: "Rubik", "Heebo", sans-serif;
+  }
+
+  /* Custom Scrollbar for Alert History */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-black/20 dark:bg-white/20 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-black/30 dark:bg-white/30;
+  }
+}

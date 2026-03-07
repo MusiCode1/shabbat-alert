@@ -96,68 +96,68 @@
 	});
 </script>
 
-<div class="mx-auto flex max-w-lg flex-col gap-6 p-6" dir="rtl">
+<div class="mx-auto flex max-w-2xl flex-col gap-6 p-6" dir="rtl">
 	<!-- Header -->
-	<header class="flex items-center justify-between">
-		<h1 class="text-[clamp(1.2rem,3vw,1.8rem)] font-bold">⚙️ הגדרות</h1>
-		<a href="/" class="rounded-lg bg-white/10 px-4 py-2 text-sm transition hover:bg-white/20">
+	<header class="flex items-center justify-between mb-2">
+		<h1 class="text-[clamp(1.8rem,4vw,2.5rem)] font-extrabold text-amber-glow-primary-light dark:text-amber-glow-primary-dark">⚙️ הגדרות</h1>
+		<a href="/" class="rounded-2xl bg-black/5 dark:bg-white/10 px-5 py-3 text-[clamp(1rem,2vw,1.3rem)] font-bold transition hover:bg-black/10 dark:hover:bg-white/20 backdrop-blur-sm shadow-sm ring-1 ring-black/5 dark:ring-white/10">
 			← חזרה לתצוגה
 		</a>
 	</header>
 
 	<!-- Selected City -->
-	<section class="rounded-xl bg-white/5 p-4">
-		<p class="mb-1 text-sm opacity-60">עיר נוכחית</p>
+	<section class="rounded-3xl bg-black/5 dark:bg-white/5 p-6 border border-black/5 dark:border-white/10 shadow-sm backdrop-blur-md">
+		<p class="mb-2 text-[clamp(1rem,1.8vw,1.2rem)] font-medium opacity-60">עיר נוכחית</p>
 		{#if selectedCity}
-			<div class="flex items-center justify-between gap-2">
-				<span class="font-semibold text-green-400">📍 {selectedCity}</span>
-				<button onclick={clearCity} class="rounded-lg px-3 py-1 text-sm text-red-400 transition hover:bg-red-500/20">
+			<div class="flex items-center justify-between gap-4">
+				<span class="text-[clamp(1.8rem,3vw,2.2rem)] font-bold text-green-700 dark:text-green-400">📍 {selectedCity}</span>
+				<button onclick={clearCity} class="rounded-xl px-5 py-2.5 text-[clamp(1.1rem,2vw,1.3rem)] font-bold text-red-600 dark:text-red-400 transition hover:bg-red-500/10 hover:shadow-sm">
 					הסר
 				</button>
 			</div>
 		{:else}
-			<p class="opacity-40">לא נבחרה עיר — מציג כל ההתראות</p>
+			<p class="text-[clamp(1.1rem,2vw,1.3rem)] opacity-50 font-medium pb-1">לא נבחרה עיר — המערכת מציגה כעת את כל ההתראות מהשרת</p>
 		{/if}
 	</section>
 
 	<!-- ALL_CLEAR duration -->
-	<section class="rounded-xl bg-white/5 p-4">
-		<p class="mb-3 font-medium">זמן הצגת הודעת "הכל בסדר" על המסך</p>
-		<div class="flex items-center gap-3">
+	<section class="rounded-3xl bg-black/5 dark:bg-white/5 p-6 border border-black/5 dark:border-white/10 shadow-sm backdrop-blur-md">
+		<p class="mb-4 text-[clamp(1.2rem,2vw,1.5rem)] font-bold text-stone-700 dark:text-stone-300">זמן הצגת הודעת "הכל בסדר" על המסך</p>
+		<div class="flex items-center gap-4 text-[clamp(1.1rem,2vw,1.3rem)]">
 			<input
 				type="number"
 				min="1"
 				max="60"
 				bind:value={allClearMin}
 				oninput={onAllClearChange}
-				class="w-20 rounded-lg border border-white/10 bg-white/10 px-3 py-2 text-center text-base outline-none focus:border-blue-500"
+				class="w-24 rounded-2xl border border-black/10 dark:border-white/10 bg-white/50 dark:bg-black/20 px-4 py-3 text-center text-xl font-bold outline-none ring-amber-glow-primary-light dark:ring-amber-glow-primary-dark focus:ring-4 transition-all"
 			/>
-			<span class="opacity-60">דקות</span>
-			<span class="text-xs opacity-40">(ברירת מחדל: 5)</span>
+			<span class="opacity-80 font-medium">דקות</span>
+			<span class="text-sm opacity-50 font-medium mr-2">(ברירת מחדל: 5)</span>
 		</div>
 	</section>
 
 	<!-- Test mode -->
-	<section class="rounded-xl bg-white/5 p-4 flex flex-col gap-4">
-		<p class="font-medium">🔬 מצב טסט</p>
+	<section class="rounded-3xl bg-black/5 dark:bg-white/5 p-6 border border-black/5 dark:border-white/10 shadow-sm backdrop-blur-md flex flex-col gap-5">
+		<p class="text-[clamp(1.2rem,2vw,1.5rem)] font-bold text-stone-700 dark:text-stone-300">🔬 מצב טסט</p>
 
 		<!-- Mode tabs -->
-		<div class="grid grid-cols-3 gap-1 rounded-lg bg-black/20 p-1">
+		<div class="grid grid-cols-3 gap-1 rounded-xl bg-black/10 dark:bg-black/40 p-1.5 shadow-inner">
 			<button
 				onclick={() => setTestMode('off')}
-				class="rounded-md px-2 py-2 text-sm font-medium transition {testMode === 'off' ? 'bg-white/15 shadow' : 'opacity-40 hover:opacity-70'}"
+				class="rounded-lg px-2 py-2 text-sm font-medium transition {testMode === 'off' ? 'bg-white dark:bg-white/15 text-stone-900 dark:text-white shadow-sm ring-1 ring-black/5 dark:ring-0' : 'opacity-50 hover:opacity-80'}"
 			>
 				כבוי
 			</button>
 			<button
 				onclick={() => setTestMode('server')}
-				class="rounded-md px-2 py-2 text-sm font-medium transition {testMode === 'server' ? 'bg-blue-500 text-white shadow' : 'opacity-40 hover:opacity-70'}"
+				class="rounded-lg px-2 py-2 text-sm font-medium transition {testMode === 'server' ? 'bg-blue-600 text-white shadow-md' : 'opacity-50 hover:opacity-80'}"
 			>
 				📡 שרת
 			</button>
 			<button
 				onclick={() => setTestMode('local')}
-				class="rounded-md px-2 py-2 text-sm font-medium transition {testMode === 'local' ? 'bg-white/15 shadow' : 'opacity-40 hover:opacity-70'}"
+				class="rounded-lg px-2 py-2 text-sm font-medium transition {testMode === 'local' ? 'bg-white dark:bg-white/15 text-stone-900 dark:text-white shadow-sm ring-1 ring-black/5 dark:ring-0' : 'opacity-50 hover:opacity-80'}"
 			>
 				🖥️ מקומי
 			</button>
@@ -171,7 +171,7 @@
 					{#each TIMING_OPTIONS as t}
 						<button
 							onclick={() => setTiming(t)}
-							class="rounded-lg px-3 py-1.5 text-sm font-medium transition {testTiming === t ? 'bg-blue-500 text-white ring-2 ring-blue-400/50' : 'bg-white/10 hover:bg-white/20'}"
+							class="rounded-xl px-4 py-2 text-sm font-medium transition shadow-sm {testTiming === t ? 'bg-blue-600 text-white ring-2 ring-blue-600/30' : 'bg-white/50 dark:bg-white/5 hover:bg-black/5 dark:hover:bg-white/10 ring-1 ring-black/5 dark:ring-white/10'}"
 						>
 							{t}
 						</button>
@@ -186,8 +186,8 @@
 					{#each SIMULATE_FLOWS as flow}
 						<button
 							onclick={() => runSimulation(flow.type)}
-							class="rounded-lg px-3 py-1.5 text-sm font-medium transition active:scale-95
-								{lastSimulation === flow.type ? 'bg-blue-500 text-white ring-2 ring-blue-400/50' : 'bg-white/10 hover:bg-white/20'}"
+							class="rounded-xl px-4 py-2 text-sm font-medium transition shadow-sm active:scale-95
+								{lastSimulation === flow.type ? 'bg-amber-glow-alert-light dark:bg-amber-glow-alert-dark text-white ring-2 ring-red-500/30' : 'bg-white/50 dark:bg-white/5 hover:bg-black/5 dark:hover:bg-white/10 ring-1 ring-black/5 dark:ring-white/10'}"
 						>
 							{flow.icon} {flow.label}
 						</button>
@@ -205,29 +205,29 @@
 			type="search"
 			placeholder="הקלד שם עיר..."
 			bind:value={searchQuery}
-			class="rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-base outline-none placeholder:opacity-40 focus:border-blue-500 focus:bg-white/15"
+			class="rounded-xl border border-black/10 dark:border-white/10 bg-white/50 dark:bg-black/20 px-4 py-3 text-base shadow-sm backdrop-blur-md outline-none placeholder:opacity-40 ring-amber-glow-primary-light dark:ring-amber-glow-primary-dark focus:ring-2"
 			dir="rtl"
 		/>
 
-		<div class="max-h-96 overflow-y-auto rounded-xl border border-white/10">
+		<div class="max-h-96 overflow-y-auto rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-black/20 shadow-inner">
 			{#if loading}
-				<div class="p-4 text-center opacity-50">טוען...</div>
+				<div class="p-6 text-center opacity-50 font-medium">טוען...</div>
 			{:else if groupedCities.length === 0}
-				<div class="p-4 text-center opacity-50">לא נמצאו ערים</div>
+				<div class="p-6 text-center opacity-50 font-medium">לא נמצאו ערים</div>
 			{:else}
 				{#each groupedCities as [zone, zoneCities]}
 					<details open={zoneHasSelected(zoneCities)}>
-						<summary class="flex cursor-pointer items-center justify-between px-4 py-2 text-sm font-semibold opacity-60 hover:bg-white/5 hover:opacity-80 select-none">
+						<summary class="flex cursor-pointer items-center justify-between px-5 py-3 text-sm font-bold opacity-70 hover:bg-black/5 dark:hover:bg-white/5 select-none border-b border-black/5 dark:border-white/5">
 							<span>{zone}</span>
-							<span class="text-xs font-normal opacity-60">{zoneCities.length}</span>
+							<span class="text-xs font-normal opacity-60 bg-black/5 dark:bg-white/10 px-2 py-0.5 rounded-full">{zoneCities.length}</span>
 						</summary>
 						<ul>
 							{#each zoneCities as city (city.city)}
 								<li>
 									<button
 										onclick={() => selectCity(city)}
-										class="flex w-full items-center gap-2 px-6 py-2.5 text-right transition hover:bg-white/10
-											{selectedCity === city.city ? 'bg-blue-600/30 text-blue-300' : ''}"
+										class="flex w-full items-center gap-2 px-7 py-3 text-right transition hover:bg-black/5 dark:hover:bg-white/5
+											{selectedCity === city.city ? 'bg-amber-glow-primary-light/10 dark:bg-amber-glow-primary-dark/10 text-amber-glow-primary-light dark:text-amber-glow-primary-dark font-bold' : ''}"
 									>
 										<span class="font-medium">{city.city}</span>
 									</button>
