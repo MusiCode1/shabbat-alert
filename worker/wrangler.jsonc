@@ -15,7 +15,7 @@
     "migrations": [
         {
             "tag": "v1",
-            "new_classes": ["AlertRelay"]
+            "new_sqlite_classes": ["AlertRelay"]
         }
     ]
     // REDALERT_API_KEY: set via: wrangler secret put REDALERT_API_KEY
