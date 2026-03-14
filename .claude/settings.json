@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:redalert.orielhaim.com)",
+      "Bash(npx svelte-check *)",
+      "Bash(npx svelte-check)",
+      "Bash(bun run check)",
+      "Bash(git stash --staged)"
+    ]
+  }
+}
