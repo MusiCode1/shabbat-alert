@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { onDestroy, onMount } from "svelte";
+  import { onMount } from "svelte";
   import { alertHistory, alertStore } from "$lib/stores/alertStore";
-  import AlertList from "$lib/components/AlertList.svelte";
-  import Clock from "$lib/components/Clock.svelte";
-  import ConnectionBadge from "$lib/components/ConnectionBadge.svelte";
-  import StatusPanel from "$lib/components/StatusPanel.svelte";
+  import AlertList from "./_components/AlertList.svelte";
+  import Clock from "./_components/Clock.svelte";
+  import ConnectionBadge from "./_components/ConnectionBadge.svelte";
+  import StatusPanel from "./_components/StatusPanel.svelte";
   import { browser } from "$app/environment";
   import {
     MapPin,
@@ -51,7 +51,7 @@
     });
   });
 
-  onDestroy(() => alertStore.destroy());
+
 </script>
 
 <!-- Main Application Wrapper -->
@@ -63,7 +63,7 @@
     class="flex flex-col lg:flex-row items-center justify-between gap-4 rounded-[2rem] bg-white/60 dark:bg-white/5 p-4 md:p-5 border border-black/15 dark:border-white/10 shadow-lg backdrop-blur-2xl"
   >
     <div
-      class="flex flex-col lg:flex-row items-center gap-3 lg:gap-6 w-full lg:w-auto z-10 relative"
+      class="flex flex-col lg:flex-row items-center gap-3 lg:gap-6 w-full lg:w-auto shrink-0"
     >
       <div class="flex flex-wrap justify-center items-center gap-3 md:gap-4">
         <span
@@ -84,7 +84,7 @@
 
     <!-- Centered Clock -->
     <div
-      class="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[clamp(0.9rem,1.2vw,1.2rem)] font-medium text-stone-700 dark:text-stone-300 opacity-90 z-0"
+      class="hidden lg:flex flex-1 justify-center text-[clamp(0.9rem,1.2vw,1.2rem)] font-medium text-stone-700 dark:text-stone-300 opacity-90 min-w-0"
     >
       <Clock />
     </div>
@@ -141,7 +141,9 @@
           </div>
 
           <ConnectionBadge
+            connecting={$appState.connecting}
             connected={$appState.connected}
+            upstreamConnected={$appState.upstreamConnected}
             lastUpdate={$appState.lastUpdate}
           />
         </div>

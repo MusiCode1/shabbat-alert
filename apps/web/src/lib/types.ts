@@ -13,7 +13,7 @@ export const ALERT_TYPE_LABELS: Record<string, string> = {
 	hostileAircraftIntrusion: 'חדירת כלי טיס עוין',
 	hazardousMaterials: 'חומרים מסוכנים',
 	terroristInfiltration: 'חדירת מחבלים',
-	newsFlash: 'בזק חדשות',
+	newsFlash: 'התראה על אזעקות צפויות',
 	missilesDrill: 'תרגיל — ירי רקטות',
 	earthQuakeDrill: 'תרגיל — רעידת אדמה',
 	tsunamiDrill: 'תרגיל — צונמי',
@@ -28,13 +28,15 @@ export const AlertSchema = type({
 });
 export type Alert = typeof AlertSchema.infer;
 
-export type AlertState = 'IDLE' | 'ALERT' | 'SHELTER' | 'ALL_CLEAR';
+export type AlertState = 'IDLE' | 'STANDBY' | 'ALERT' | 'SHELTER' | 'ALL_CLEAR' | 'STANDBY_CLEAR';
 
 export interface AppState {
 	status: AlertState;
 	currentAlert: Alert | null;
 	alertSecondsLeft: number;
+	connecting: boolean;
 	connected: boolean;
+	upstreamConnected: boolean;
 	lastUpdate: Date | null;
 }
 

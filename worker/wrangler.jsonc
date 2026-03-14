@@ -3,7 +3,9 @@
     "name": "shabbat-alert-worker",
     "main": "src/index.ts",
     "compatibility_date": "2025-01-01",
-    "compatibility_flags": ["nodejs_compat"],
+    "compatibility_flags": [
+        "nodejs_compat"
+    ],
     "durable_objects": {
         "bindings": [
             {
@@ -15,8 +17,14 @@
     "migrations": [
         {
             "tag": "v1",
-            "new_sqlite_classes": ["AlertRelay"]
+            "new_sqlite_classes": [
+                "AlertRelay"
+            ]
         }
-    ]
+    ],
     // REDALERT_API_KEY: set via: wrangler secret put REDALERT_API_KEY
+    "dev": {
+        "ip": "0.0.0.0",
+        
+    },
 }

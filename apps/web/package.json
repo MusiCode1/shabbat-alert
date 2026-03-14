@@ -27,5 +27,8 @@
 		"arktype": "^2.2.0",
 		"jewish-date": "^2.0.23",
 		"lucide-svelte": "^0.577.0"
+	},
+	"imports": {
+		"#app.css": "./src/app.css"
 	}
 }

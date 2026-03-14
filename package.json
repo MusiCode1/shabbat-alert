@@ -3,11 +3,14 @@
   "private": true,
   "workspaces": ["apps/web", "worker"],
   "scripts": {
-    "dev": "bun run --cwd apps/web dev",
+    "dev": "concurrently --names worker,front \"cd worker && bunx wrangler dev\" \"cd apps/web && bun run dev\"",
     "build:web": "bun run --cwd apps/web build",
     "build:worker": "cd worker && bunx wrangler deploy --dry-run",
     "check": "bun run --cwd apps/web check",
     "deploy:worker": "cd worker && bunx wrangler deploy",
     "deploy:web": "bun run --cwd apps/web build && bunx wrangler pages deploy apps/web/.svelte-kit/cloudflare --project-name shabbat-alert-web"
+  },
+  "dependencies": {
+    "concurrently": "^9.2.1"
   }
 }

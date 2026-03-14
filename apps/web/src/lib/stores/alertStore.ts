@@ -2,10 +2,12 @@ import { browser } from '$app/environment';
 import { derived, writable } from 'svelte/store';
 import { type } from 'arktype';
 import { WsServerMessageSchema, HistoryApiResponseSchema } from '$lib/types';
-import type { Alert, AlertType, AppState, HistoryEntry } from '$lib/types';
+import type { Alert, AlertType, AlertState, AppState, HistoryEntry } from '$lib/types';
 
 const ALERT_DURATION_MS = 90_000;
-const RECONNECT_DELAY_MS = 3_000;
+const RECONNECT_BASE_MS = 3_000;
+const RECONNECT_MAX_MS = 60_000;
+const STALE_TIMEOUT_MS = 45_000;
 
 const WORKER_WS_URL: string = import.meta.env.VITE_WORKER_WS_URL ?? '';
 const WORKER_URL: string = import.meta.env.VITE_WORKER_URL ?? '';
@@ -20,7 +22,9 @@ function createAlertStore() {
 		status: 'IDLE',
 		currentAlert: null,
 		alertSecondsLeft: 90,
+		connecting: false,
 		connected: false,
+		upstreamConnected: false,
 		lastUpdate: null
 	});
 
@@ -33,6 +37,9 @@ function createAlertStore() {
 	let allClearTimer: ReturnType<typeof setTimeout> | null = null;
 	let shelterInterval: ReturnType<typeof setInterval> | null = null;
 	let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+	let staleTimer: ReturnType<typeof setTimeout> | null = null;
+	let reconnectAttempts = 0;
+	let intentionalReconnect = false;
 	let destroyed = false;
 
 	function getCity(): string {
@@ -53,6 +60,13 @@ function createAlertStore() {
 		shelterInterval = null;
 	}
 
+	function resetStaleTimer() {
+		if (staleTimer) clearTimeout(staleTimer);
+		staleTimer = setTimeout(() => {
+			ws?.close();
+		}, STALE_TIMEOUT_MS);
+	}
+
 	function addToHistory(alert: Alert) {
 		history.update((h) => {
 			const entry: HistoryEntry = {
@@ -64,6 +78,18 @@ function createAlertStore() {
 			};
 			return [entry, ...h].slice(0, 50);
 		});
+	}
+
+	function currentStatus(): AlertState {
+		let current: AlertState = 'IDLE';
+		state.subscribe((s) => (current = s.status))();
+		return current;
+	}
+
+	function onStandby(alert: Alert) {
+		clearTimers();
+		addToHistory(alert);
+		setState({ status: 'STANDBY', currentAlert: alert, alertSecondsLeft: 0 });
 	}
 
 	function onAlert(alert: Alert) {
@@ -91,7 +117,9 @@ function createAlertStore() {
 
 	function onEndAlert(alert: Alert) {
 		clearTimers();
-		setState({ status: 'ALL_CLEAR', currentAlert: alert });
+		const status = currentStatus();
+		const nextStatus: AlertState = status === 'STANDBY' ? 'STANDBY_CLEAR' : 'ALL_CLEAR';
+		setState({ status: nextStatus, currentAlert: alert });
 
 		allClearTimer = setTimeout(() => {
 			setState({ status: 'IDLE', currentAlert: null });
@@ -140,8 +168,13 @@ function createAlertStore() {
 			cities: [getCity() || 'בדיקה'],
 			instructions: '',
 		};
-		onAlert(mock);
-		setTimeout(() => onEndAlert(mock), ALERT_DURATION_MS + 1_000);
+		if (alertType === 'newsFlash') {
+			onStandby(mock);
+			setTimeout(() => onEndAlert(mock), 30_000);
+		} else {
+			onAlert(mock);
+			setTimeout(() => onEndAlert(mock), ALERT_DURATION_MS + 1_000);
+		}
 	}
 
 	function connect() {
@@ -165,31 +198,45 @@ function createAlertStore() {
 		const url = qs ? `${WORKER_WS_URL}?${qs}` : WORKER_WS_URL;
 
 		ws = new WebSocket(url);
+		setState({ connecting: true });
 
 		ws.addEventListener('open', () => {
-			setState({ connected: true });
+			reconnectAttempts = 0;
+			setState({ connecting: false, connected: true });
 		});
 
 		ws.addEventListener('message', (event) => {
 			try {
+				resetStaleTimer();
 				const msg = WsServerMessageSchema(JSON.parse(event.data));
 				if (msg instanceof type.errors) return;
 				if (msg.type === 'alert') {
-					onAlert(msg.data);
+					if (msg.data.type === 'newsFlash') {
+						onStandby(msg.data);
+					} else {
+						onAlert(msg.data);
+					}
 				} else if (msg.type === 'endAlert') {
 					onEndAlert(msg.data);
 				} else if (msg.type === 'state') {
-					setState({ connected: msg.connected });
+					setState({ upstreamConnected: msg.connected });
 				}
+				// ping — stale timer already reset above, nothing else needed
 			} catch {
 				// ignore parse errors
 			}
 		});
 
 		ws.addEventListener('close', () => {
-			setState({ connected: false });
+			if (staleTimer) clearTimeout(staleTimer);
+			setState({ connecting: false, connected: false, upstreamConnected: false });
 			ws = null;
-			scheduleReconnect();
+			if (intentionalReconnect) {
+				intentionalReconnect = false;
+				connect();
+			} else {
+				scheduleReconnect();
+			}
 		});
 
 		ws.addEventListener('error', () => {
@@ -199,26 +246,40 @@ function createAlertStore() {
 
 	function scheduleReconnect() {
 		if (destroyed) return;
+		const delay = Math.min(RECONNECT_BASE_MS * 2 ** reconnectAttempts, RECONNECT_MAX_MS);
+		reconnectAttempts++;
 		reconnectTimer = setTimeout(() => {
 			if (!destroyed) connect();
-		}, RECONNECT_DELAY_MS);
+		}, delay);
 	}
 
 	function destroy() {
 		destroyed = true;
 		clearTimers();
 		if (reconnectTimer) clearTimeout(reconnectTimer);
+		if (staleTimer) clearTimeout(staleTimer);
 		ws?.close();
 		ws = null;
 	}
 
-	function updateCity(city: string) {
-		if (browser) localStorage.setItem('selectedCity', city);
+	function reconnect() {
+		destroyed = false;
+		reconnectAttempts = 0;
+		if (reconnectTimer) clearTimeout(reconnectTimer);
 		if (ws) {
+			intentionalReconnect = true;
 			ws.close();
 		} else {
 			connect();
 		}
+	}
+
+	function updateCity(city: string) {
+		if (browser) localStorage.setItem('selectedCity', city);
+		historyLoaded = false;
+		history.set([]);
+		loadHistory();
+		reconnect();
 	}
 
 	if (browser) {
@@ -230,6 +291,7 @@ function createAlertStore() {
 		subscribe: state.subscribe,
 		history,
 		connect,
+		reconnect,
 		destroy,
 		updateCity,
 		simulateFlow,
@@ -245,7 +307,10 @@ export const statusColor = derived(alertStore, ($s) => {
 			return '#ef4444';
 		case 'SHELTER':
 			return '#f97316';
+		case 'STANDBY':
+			return '#eab308';
 		case 'ALL_CLEAR':
+		case 'STANDBY_CLEAR':
 			return '#86efac';
 		default:
 			return '#22c55e';

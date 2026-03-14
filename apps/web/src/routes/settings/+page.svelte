@@ -11,6 +11,22 @@
 	let testMode = $state<TestMode>(browser ? (localStorage.getItem('testMode') as TestMode ?? 'off') : 'off');
 	let lastSimulation = $state<AlertType | null>(null);
 	let allClearMin = $state(browser ? Number(localStorage.getItem('allClearDurationMin') ?? 5) : 5);
+	let isFullscreen = $state(false);
+
+	function toggleFullscreen() {
+		if (!document.fullscreenElement) {
+			document.documentElement.requestFullscreen();
+		} else {
+			document.exitFullscreen();
+		}
+	}
+
+	$effect(() => {
+		if (!browser) return;
+		const handler = () => { isFullscreen = !!document.fullscreenElement; };
+		document.addEventListener('fullscreenchange', handler);
+		return () => document.removeEventListener('fullscreenchange', handler);
+	});
 	let testTiming = $state(browser ? (localStorage.getItem('testTiming') ?? '5s') : '5s');
 
 	const TIMING_OPTIONS = ['1s', '5s', '10s', '30s', '1m'];
@@ -19,6 +35,7 @@
 		{ label: 'טיל', icon: '🚀', type: 'missiles' },
 		{ label: 'צונמי', icon: '🌊', type: 'tsunami' },
 		{ label: 'רעידה', icon: '🌍', type: 'earthQuake' },
+		{ label: 'בזק חדשות', icon: '📢', type: 'newsFlash' },
 	];
 
 	let filteredCities = $derived(
@@ -50,6 +67,7 @@
 		testMode = mode;
 		localStorage.setItem('testMode', mode);
 		localStorage.setItem('useTestServer', mode === 'server' ? '1' : '0');
+		alertStore.reconnect();
 	}
 
 	function runSimulation(type: AlertType) {
@@ -118,6 +136,19 @@
 		{:else}
 			<p class="text-[clamp(1.1rem,2vw,1.3rem)] opacity-50 font-medium pb-1">לא נבחרה עיר — המערכת מציגה כעת את כל ההתראות מהשרת</p>
 		{/if}
+	</section>
+
+	<!-- Fullscreen -->
+	<section class="rounded-3xl bg-black/5 dark:bg-white/5 p-6 border border-black/5 dark:border-white/10 shadow-sm backdrop-blur-md">
+		<div class="flex items-center justify-between">
+			<p class="text-[clamp(1.2rem,2vw,1.5rem)] font-bold text-stone-700 dark:text-stone-300">מסך מלא</p>
+			<button
+				onclick={toggleFullscreen}
+				class="rounded-2xl bg-black/5 dark:bg-white/10 px-5 py-3 text-[clamp(1rem,2vw,1.2rem)] font-bold transition hover:bg-black/10 dark:hover:bg-white/20 ring-1 ring-black/5 dark:ring-white/10"
+			>
+				{isFullscreen ? '⛶ צא ממסך מלא' : '⛶ כנס למסך מלא'}
+			</button>
+		</div>
 	</section>
 
 	<!-- ALL_CLEAR duration -->

@@ -1,6 +1,8 @@
 import { io, Socket } from 'socket.io-client';
 import { type } from 'arktype';
 
+const PING_INTERVAL_MS = 30_000;
+
 const AlertSchema = type({
 	type: 'string',
 	title: 'string',
@@ -24,6 +26,7 @@ export class AlertRelay implements DurableObject {
 	private upstreamConnected = false;
 	private clientIdCounter = 0;
 	private testTiming = '5s';
+	private pingInterval: ReturnType<typeof setInterval> | null = null;
 
 	constructor(state: DurableObjectState, env: Env) {
 		this.state = state;
@@ -108,6 +111,21 @@ export class AlertRelay implements DurableObject {
 			this.socket.disconnect();
 			this.socket = null;
 			this.upstreamConnected = false;
+			this.stopPing();
+		}
+	}
+
+	private startPing() {
+		this.stopPing();
+		this.pingInterval = setInterval(() => {
+			this.broadcast({ type: 'ping' });
+		}, PING_INTERVAL_MS);
+	}
+
+	private stopPing() {
+		if (this.pingInterval) {
+			clearInterval(this.pingInterval);
+			this.pingInterval = null;
 		}
 	}
 
@@ -126,11 +144,13 @@ export class AlertRelay implements DurableObject {
 		this.socket.on('connect', () => {
 			this.upstreamConnected = true;
 			this.broadcast({ type: 'state', connected: true });
+			this.startPing();
 		});
 
 		this.socket.on('disconnect', () => {
 			this.upstreamConnected = false;
 			this.broadcast({ type: 'state', connected: false });
+			this.stopPing();
 		});
 
 		this.socket.on('alert', (raw: unknown) => {
